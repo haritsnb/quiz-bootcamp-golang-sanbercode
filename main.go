@@ -23,12 +23,15 @@ func main() {
 
 	// Repositories
 	userRepo := repositories.NewUserRepository(config.DB)
+	categoryRepo := repositories.NewCategoryRepository(config.DB)
 
 	// Services
 	userService := services.NewUserService(userRepo)
+	categoryService := services.NewCategoryService(categoryRepo)
 
 	// Controllers
 	userController := controllers.NewUserController(userService)
+	categoryController := controllers.NewCategoryController(categoryService)
 
 	// Router
 	route := gin.Default()
@@ -45,6 +48,13 @@ func main() {
 			protected.GET("/users/:id", userController.GetByID)
 			protected.PUT("/users/:id", userController.Update)
 			protected.DELETE("/users/:id", userController.Delete)
+
+			// Categories
+			protected.GET("/categories", categoryController.GetAll)
+			protected.POST("/categories", categoryController.Create)
+			protected.GET("/categories/:id", categoryController.GetByID)
+			protected.PUT("/categories/:id", categoryController.Update)
+			protected.DELETE("/categories/:id", categoryController.Delete)
 		}
 	}
 
