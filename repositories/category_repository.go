@@ -96,3 +96,32 @@ func (r *CategoryRepository) Delete(id int) error {
 	}
 	return nil
 }
+
+func (r *CategoryRepository) FindBooksByCategoryID(categoryID int) ([]models.Book, error) {
+	_, err := r.FindByID(categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	query := `SELECT id, title, description, image_url, release_year, price, total_page, thickness, category_id, created_at, created_by, modified_at, modified_by FROM books WHERE category_id = $1 ORDER BY id ASC`
+	rows, err := r.DB.Query(query, categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var books []models.Book
+	for rows.Next() {
+		var b models.Book
+		if err := rows.Scan(&b.ID, &b.Title, &b.Description, &b.ImageURL, &b.ReleaseYear, &b.Price, &b.TotalPage, &b.Thickness, &b.CategoryID, &b.CreatedAt, &b.CreatedBy, &b.ModifiedAt, &b.ModifiedBy); err != nil {
+			return nil, err
+		}
+		books = append(books, b)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return books, nil
+}

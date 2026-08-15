@@ -75,3 +75,7 @@ func (s *CategoryService) Update(id int, req models.CategoryUpdateRequest, authU
 func (s *CategoryService) Delete(id int) error {
 	return s.Repo.Delete(id)
 }
+
+func (s *CategoryService) GetBooksByCategoryID(id int) ([]models.Book, error) {
+	return s.Repo.FindBooksByCategoryID(id)
+}

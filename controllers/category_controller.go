@@ -94,3 +94,24 @@ func (cc *CategoryController) Delete(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Category berhasil dihapus"})
 }
+
+func (cc *CategoryController) GetBooks(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID category tidak valid"})
+		return
+	}
+
+	books, err := cc.Service.GetBooksByCategoryID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Format image_url menjadi Full URL
+	for i := range books {
+		books[i].ImageURL = formatImageURL(c, books[i].ImageURL)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": books})
+}
