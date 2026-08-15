@@ -4,6 +4,7 @@ import (
 	"app/config"
 	"app/controllers"
 	"app/database"
+	"app/middlewares"
 	"app/repositories"
 	"app/services"
 	"os"
@@ -13,7 +14,7 @@ import (
 )
 
 func main() {
-	// Load .env di awal
+	// Muat .env di awal
 	_ = godotenv.Load()
 
 	// DB, Migrasi, Seeder
@@ -27,11 +28,13 @@ func main() {
 	bookRepo := repositories.NewBookRepository(config.DB)
 
 	// Services
+	authService := services.NewAuthService(userRepo)
 	userService := services.NewUserService(userRepo)
 	categoryService := services.NewCategoryService(categoryRepo)
 	bookService := services.NewBookService(bookRepo, categoryRepo)
 
 	// Controllers
+	authController := controllers.NewAuthController(authService)
 	userController := controllers.NewUserController(userService)
 	categoryController := controllers.NewCategoryController(categoryService)
 	bookController := controllers.NewBookController(bookService)
@@ -46,8 +49,16 @@ func main() {
 	api := route.Group("/api")
 	{
 
+		// Public Auth
+		api.POST("/users/login", authController.Login)
+
+		// Protected Routes (JWT Middleware)
 		protected := api.Group("/")
+		protected.Use(middlewares.AuthMiddleware())
 		{
+			// Logout
+			protected.POST("/users/logout", authController.Logout)
+
 			// Users
 			protected.GET("/users", userController.GetAll)
 			protected.POST("/users", userController.Create)
