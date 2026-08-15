@@ -2,14 +2,33 @@ package main
 
 import (
 	"app/config"
+	"app/database"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	config.ConnectDatabase()
+	// Load .env di awal
+	_ = godotenv.Load()
 
+	// DB, Migrasi, Seeder
+	config.ConnectDatabase()
+	database.RunMigrations(config.DB)
+	database.RunSeeders(config.DB)
+
+	// Router
 	route := gin.Default()
 
-	route.Run(":8080")
+	// Port
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("APP_PORT")
+		if port == "" {
+			port = "8080"
+		}
+	}
+
+	route.Run(":" + port)
 }
