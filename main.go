@@ -2,7 +2,10 @@ package main
 
 import (
 	"app/config"
+	"app/controllers"
 	"app/database"
+	"app/repositories"
+	"app/services"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -18,8 +21,32 @@ func main() {
 	database.RunMigrations(config.DB)
 	database.RunSeeders(config.DB)
 
+	// Repositories
+	userRepo := repositories.NewUserRepository(config.DB)
+
+	// Services
+	userService := services.NewUserService(userRepo)
+
+	// Controllers
+	userController := controllers.NewUserController(userService)
+
 	// Router
 	route := gin.Default()
+
+	// Routing API
+	api := route.Group("/api")
+	{
+
+		protected := api.Group("/")
+		{
+			// Users
+			protected.GET("/users", userController.GetAll)
+			protected.POST("/users", userController.Create)
+			protected.GET("/users/:id", userController.GetByID)
+			protected.PUT("/users/:id", userController.Update)
+			protected.DELETE("/users/:id", userController.Delete)
+		}
+	}
 
 	// Port
 	port := os.Getenv("PORT")
