@@ -20,6 +20,17 @@ func NewAuthController(s *services.AuthService) *AuthController {
 	return &AuthController{AuthService: s}
 }
 
+// Login godoc
+// @Summary      User Login
+// @Description  Otentikasi kredensial pengguna untuk mendapatkan JSON Web Token (JWT)
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body models.UserLoginRequest true "Payload Login"
+// @Success      200 {object} map[string]interface{} "Login berhasil dan mengembalikan token"
+// @Failure      400 {object} map[string]interface{} "Format input tidak valid"
+// @Failure      401 {object} map[string]interface{} "Username atau password salah"
+// @Router       /users/login [post]
 func (a *AuthController) Login(c *gin.Context) {
 	var req models.UserLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -39,6 +50,15 @@ func (a *AuthController) Login(c *gin.Context) {
 	})
 }
 
+// Logout godoc
+// @Summary      User Logout
+// @Description  Memasukkan token JWT yang sedang aktif ke dalam Blacklist memori
+// @Tags         Auth
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} map[string]interface{} "Logout berhasil"
+// @Failure      401 {object} map[string]interface{} "Unauthorized / Token tidak valid"
+// @Router       /users/logout [post]
 func (a *AuthController) Logout(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")

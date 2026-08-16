@@ -1,0 +1,699 @@
+basePath: /api
+definitions:
+  models.CategoryCreateRequest:
+    properties:
+      created_by:
+        type: string
+      modified_by:
+        type: string
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  models.CategoryUpdateRequest:
+    properties:
+      created_by:
+        type: string
+      modified_by:
+        type: string
+      name:
+        type: string
+    type: object
+  models.UserCreateRequest:
+    properties:
+      created_by:
+        type: string
+      modified_by:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.UserLoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.UserUpdateRequest:
+    properties:
+      created_by:
+        type: string
+      modified_by:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact:
+    email: developer.haritsnb@gmail.com
+    name: Harits Nala Barrun
+  description: Dokumentasi interaktif RESTful API Pengelolaan User, Kategori, dan
+    Buku beserta Upload Cover Gambar.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Book & Category Management REST API
+  version: "1.0"
+paths:
+  /books:
+    get:
+      description: Mengambil seluruh data buku beserta Full URL cover image
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get All Books
+      tags:
+      - Books
+    post:
+      consumes:
+      - multipart/form-data
+      description: Menambahkan buku baru (Multipart Form) dengan upload file cover
+        dan auto thickness
+      parameters:
+      - description: Judul Buku
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Deskripsi
+        in: formData
+        name: description
+        type: string
+      - description: Tahun Rilis (1980 - 2024)
+        in: formData
+        name: release_year
+        required: true
+        type: integer
+      - description: Harga Buku
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - description: Total Halaman (Konversi ketebalan otomatis)
+        in: formData
+        name: total_page
+        required: true
+        type: integer
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: Dibuat Oleh (Opsional)
+        in: formData
+        name: created_by
+        type: string
+      - description: Diupdate Oleh (Opsional)
+        in: formData
+        name: modified_by
+        type: string
+      - description: File Gambar Cover (.jpg/.png)
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Book
+      tags:
+      - Books
+  /books/{id}:
+    delete:
+      description: Menghapus data buku dan menghapus file gambar fisiknya dari storage
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete Book
+      tags:
+      - Books
+    get:
+      description: Mengambil detail data buku berdasarkan ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Book Detail
+      tags:
+      - Books
+    put:
+      consumes:
+      - multipart/form-data
+      description: Memperbarui data buku atau mengganti file cover
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Judul Buku
+        in: formData
+        name: title
+        type: string
+      - description: Deskripsi
+        in: formData
+        name: description
+        type: string
+      - description: Tahun Rilis (1980 - 2024)
+        in: formData
+        name: release_year
+        type: integer
+      - description: Harga
+        in: formData
+        name: price
+        type: integer
+      - description: Total Halaman
+        in: formData
+        name: total_page
+        type: integer
+      - description: Category ID
+        in: formData
+        name: category_id
+        type: integer
+      - description: Diupdate Oleh
+        in: formData
+        name: modified_by
+        type: string
+      - description: File Gambar Baru
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update Book (Partial)
+      tags:
+      - Books
+  /categories:
+    get:
+      description: Mengambil seluruh daftar kategori buku
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get All Categories
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan kategori baru
+      parameters:
+      - description: Data Kategori Baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create Category
+      tags:
+      - Categories
+  /categories/{id}:
+    delete:
+      description: Menghapus data kategori berdasarkan ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete Category
+      tags:
+      - Categories
+    get:
+      description: Mengambil detail kategori berdasarkan ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Category Detail
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data kategori berdasarkan ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data Perubahan Kategori
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CategoryUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update Category
+      tags:
+      - Categories
+  /categories/{id}/books:
+    get:
+      description: Mengambil seluruh buku yang berada dalam kategori tertentu
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get Books by Category ID
+      tags:
+      - Categories
+  /users:
+    get:
+      description: Mengambil seluruh daftar data pengguna
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get All Users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan pengguna baru ke dalam database
+      parameters:
+      - description: Data User Baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create User
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: Menghapus akun pengguna berdasarkan ID (Auto logout jika menghapus
+        akun sendiri)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - Users
+    get:
+      description: Mengambil data detail pengguna berdasarkan ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get User Detail
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data pengguna secara parsial berdasarkan ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data Perubahan User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update User (Partial)
+      tags:
+      - Users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Otentikasi kredensial pengguna untuk mendapatkan JSON Web Token
+        (JWT)
+      parameters:
+      - description: Payload Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login berhasil dan mengembalikan token
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Format input tidak valid
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Username atau password salah
+          schema:
+            additionalProperties: true
+            type: object
+      summary: User Login
+      tags:
+      - Auth
+  /users/logout:
+    post:
+      description: Memasukkan token JWT yang sedang aktif ke dalam Blacklist memori
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout berhasil
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized / Token tidak valid
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User Logout
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    description: 'Masukkan token dengan format: Bearer <TOKEN_JWT_ANDA>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
